@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сивера - демо сайта авиаперевозчика</title>
+<meta name="description" content="Демо сайта авиаперевозчика: бронирование, онлайн-регистрация, табло, маршруты, доп. услуги, вакансии. RU/EN.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b1a2e; --navy2:#12253f; --ink:#0f1b2b; --paper:#f6f4ef; --white:#fff; --line:#e3ded4;
+  --gold:#d7a25a; --gold2:#f0c587; --sky:#7fa7c9; --muted:#6c7684; --ok:#3aa76d; --warn:#e2a03c; --bad:#d4553f;
+  --ease:cubic-bezier(.2,.7,.1,1); --f:'Jost',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--f);color:var(--ink);background:var(--paper);font-size:17px;line-height:1.5;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+.cap{font-size:12px;letter-spacing:.24em;text-transform:uppercase;font-weight:500}
+h1,h2{font-weight:300;letter-spacing:.005em;line-height:1.02}
+h2{font-size:clamp(38px,5vw,64px);font-style:italic}
+h2 b{font-weight:300;font-style:normal;color:var(--gold)}
+.sec{padding:120px 0}
+.head{display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:56px;flex-wrap:wrap}
+.head p{max-width:440px;color:var(--muted)}
+.r{opacity:0;transform:translateY(30px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.r.in{opacity:1;transform:none}
+/* utility bar */
+.util{background:var(--navy);color:#c9d3df;font-size:13px}
+.util .wrap{display:flex;justify-content:space-between;height:38px;align-items:center}
+.util nav{display:flex;gap:26px}
+.util a:hover{color:var(--gold2)}
+.lang{display:flex;gap:4px}
+.lang button{background:none;border:1px solid transparent;border-radius:20px;padding:2px 10px;cursor:pointer;color:#c9d3df;font-size:12px;letter-spacing:.1em}
+.lang button.on{border-color:var(--gold);color:var(--gold2)}
+/* header */
+header.main{position:absolute;top:38px;left:0;right:0;z-index:20;color:#fff}
+header.main .wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:96px}
+.nav{display:flex;gap:34px}
+.nav.r2{justify-content:flex-end}
+.nav a{font-size:12px;letter-spacing:.22em;text-transform:uppercase;opacity:.9;position:relative}
+.nav a:after{content:"";position:absolute;left:0;right:100%;bottom:-6px;height:1px;background:var(--gold2);transition:right .4s var(--ease)}
+.nav a:hover:after{right:0}
+.logo{display:flex;flex-direction:column;align-items:center;gap:4px}
+.logo b{font-weight:400;letter-spacing:.5em;font-size:22px;padding-left:.5em}
+.logo svg{width:150px;height:14px}
+.burger{display:none;background:none;border:0;color:#fff;font-size:26px;cursor:pointer;justify-self:end}
+/* hero */
+.hero{position:relative;height:100vh;min-height:760px;color:#fff;overflow:hidden;background:#1b1a22}
+.hero .bg{position:absolute;inset:-4%;background:url(img/sunset.jpg) center 62%/cover;transform:scale(1.08);animation:kb 22s ease-out forwards}
+@keyframes kb{to{transform:scale(1)}}
+.hero:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(11,26,46,.55),rgba(11,26,46,.05) 35%,rgba(11,26,46,.15) 60%,rgba(11,26,46,.85))}
+.hero .wrap{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:70px}
+.hero h1{font-size:clamp(40px,6vw,92px);font-style:italic;max-width:900px;text-shadow:0 2px 40px rgba(0,0,0,.25)}
+.hero h1 span{display:block;font-style:normal;font-size:14px;letter-spacing:.3em;text-transform:uppercase;margin-bottom:22px;color:var(--gold2);font-weight:400}
+/* booking */
+.book{margin-top:48px;background:rgba(255,255,255,.96);color:var(--ink);border-radius:36px;padding:10px;box-shadow:0 30px 80px -30px rgba(0,0,0,.5);backdrop-filter:blur(10px)}
+.tabs{display:flex;gap:4px;padding:6px 6px 0}
+.tabs button{background:none;border:0;padding:10px 20px;border-radius:30px;cursor:pointer;font-size:14px;letter-spacing:.06em;color:var(--muted)}
+.tabs button.on{background:var(--navy);color:#fff}
+.pane{display:none;grid-template-columns:1.2fr 1.2fr 1fr 1fr .9fr auto;align-items:center;padding:8px}
+.pane.on{display:grid}
+.fld{padding:12px 22px;border-right:1px solid var(--line);position:relative}
+.fld:last-of-type{border:0}
+.fld label{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.fld input,.fld select{border:0;background:none;outline:0;width:100%;font-size:20px;padding-top:2px}
+.swap{position:absolute;right:-17px;top:50%;margin-top:-17px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;z-index:2;transition:transform .5s var(--ease)}
+.swap:hover{transform:rotate(180deg)}
+.go{background:var(--gold);color:var(--navy);border:0;border-radius:30px;padding:22px 34px;font-size:14px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;cursor:pointer;transition:background .3s}
+.go:hover{background:var(--gold2)}
+.pane.two{grid-template-columns:1fr 1fr auto}
+.pills{display:flex;gap:10px;margin-top:16px}
+.pill{border:1px solid rgba(255,255,255,.6);border-radius:30px;padding:8px 18px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;background:none;color:#fff;cursor:pointer}
+.pill.on{background:#fff;color:var(--navy)}
+.scroll{position:absolute;right:32px;bottom:80px;z-index:2;writing-mode:vertical-rl;font-size:11px;letter-spacing:.3em;text-transform:uppercase;opacity:.8}
+/* board */
+.board{background:var(--navy);color:#e8edf3;padding:120px 0}
+.board h2 b{color:var(--gold2)}
+.board .head p{color:#9fb0c3}
+.btabs{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btabs button{background:none;border:1px solid #2c4060;border-radius:30px;padding:9px 20px;color:#c9d3df;cursor:pointer;font-size:14px}
+.btabs button.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.btabs input{margin-left:auto;flex:0 0 260px;background:#12253f;border:1px solid #2c4060;border-radius:30px;padding:9px 18px;color:#fff;outline:0;width:260px}
+.clock{font-family:var(--mono);font-size:44px;color:var(--gold2);letter-spacing:.06em}
+table{width:100%;border-collapse:collapse;margin-top:28px;font-family:var(--mono);font-size:15px}
+th{text-align:left;font-family:var(--f);font-weight:400;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7f93ab;padding:12px 14px;border-bottom:1px solid #22385a}
+td{padding:16px 14px;border-bottom:1px solid #18304f;white-space:nowrap}
+tr:hover td{background:#0f2238}
+.fl{display:inline-flex;gap:2px}
+.fl i{font-style:normal;display:inline-block;min-width:.72em;text-align:center;background:#07121f;border-radius:3px;padding:2px 1px;margin-right:1px}
+.fl i.flip{animation:flip .45s var(--ease)}
+@keyframes flip{0%{transform:rotateX(90deg);opacity:.2}100%{transform:none}}
+.st{font-family:var(--f);font-size:13px;padding:5px 12px;border-radius:20px;font-weight:500;letter-spacing:.04em}
+.st.ok{background:rgba(58,167,109,.16);color:#6fd29d}
+.st.warn{background:rgba(226,160,60,.16);color:#f2bd6b}
+.st.bad{background:rgba(212,85,63,.18);color:#f08a77}
+.st.go2{background:rgba(127,167,201,.18);color:#a9cbea}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:7px;vertical-align:1px;animation:bl 1.4s infinite}
+@keyframes bl{50%{opacity:.25}}
+.tablewrap{overflow-x:auto}
+/* routes */
+.routes{display:grid;grid-template-columns:1.25fr 1fr;gap:40px;align-items:stretch}
+.map{background:var(--navy);border-radius:28px;position:relative;overflow:hidden;min-height:520px}
+.map svg{width:100%;height:100%;position:absolute;inset:0}
+.map .arc{fill:none;stroke:var(--gold);stroke-width:1.4;stroke-dasharray:4 6;opacity:.35;transition:opacity .4s,stroke-width .4s}
+.map .arc.on{opacity:1;stroke-width:2.2;stroke-dasharray:none}
+.map .city circle{fill:#fff}
+.map .city text{fill:#c9d3df;font-size:13px;font-family:var(--f)}
+.map .hub circle{fill:var(--gold)}
+.map .plane{fill:var(--gold2)}
+.map .legend{position:absolute;left:28px;bottom:24px;color:#9fb0c3;font-size:13px}
+.dest{display:flex;flex-direction:column;gap:10px}
+.dcard{display:grid;grid-template-columns:1fr auto;align-items:center;padding:20px 24px;border-radius:20px;background:#fff;border:1px solid var(--line);cursor:pointer;transition:transform .4s var(--ease),box-shadow .4s,border-color .3s}
+.dcard:hover,.dcard.on{transform:translateX(6px);box-shadow:0 20px 40px -24px rgba(11,26,46,.35);border-color:var(--gold)}
+.dcard h3{font-weight:400;font-size:24px}
+.dcard small{color:var(--muted);font-size:14px}
+.dcard .pr{text-align:right;font-size:13px;color:var(--muted)}
+.dcard .pr b{display:block;font-size:24px;font-weight:500;color:var(--ink)}
+/* services */
+.svc{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.sv{background:#fff;border-radius:24px;padding:34px;border:1px solid var(--line);display:flex;flex-direction:column;min-height:260px;transition:transform .5s var(--ease),box-shadow .5s}
+.sv:hover{transform:translateY(-6px);box-shadow:0 30px 60px -36px rgba(11,26,46,.45)}
+.sv svg{width:40px;height:40px;stroke:var(--gold);fill:none;stroke-width:1.4}
+.sv h3{font-weight:400;font-size:26px;margin:22px 0 8px}
+.sv p{color:var(--muted);font-size:16px}
+.sv .row{margin-top:auto;padding-top:22px;display:flex;justify-content:space-between;align-items:center}
+.sv .row b{font-weight:500}
+.lnk{font-size:12px;letter-spacing:.2em;text-transform:uppercase;border-bottom:1px solid var(--gold);padding-bottom:3px;cursor:pointer;background:none;border-top:0;border-left:0;border-right:0}
+/* banner */
+.wing{position:relative;height:620px;color:#fff;overflow:hidden}
+.wing .bg{position:absolute;inset:-10% 0;background:url(img/wing.jpg) center/cover;will-change:transform}
+.wing:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(11,26,46,.85),rgba(11,26,46,.2))}
+.wing .card{position:relative;z-index:2;max-width:560px;top:50%;transform:translateY(-50%)}
+.wing h2{color:#fff}
+.wing p{color:#d6dee8;margin:20px 0 30px;font-size:19px}
+.stats{display:flex;gap:46px;margin-top:10px}
+.stats b{display:block;font-size:46px;font-weight:300;color:var(--gold2);line-height:1}
+.stats span{font-size:13px;color:#c9d3df;letter-spacing:.08em}
+/* info */
+.info{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+details{border-bottom:1px solid var(--line);padding:22px 0}
+summary{list-style:none;cursor:pointer;font-size:22px;display:flex;justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";font-size:28px;color:var(--gold);transition:transform .4s var(--ease)}
+details[open] summary:after{transform:rotate(45deg)}
+details p{color:var(--muted);margin-top:12px;max-width:560px}
+.news{display:flex;flex-direction:column;gap:18px}
+.nw{display:grid;grid-template-columns:120px 1fr;gap:20px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.nw time{font-family:var(--mono);font-size:13px;color:var(--gold)}
+.nw h3{font-weight:400;font-size:20px;line-height:1.3}
+/* jobs */
+.jobs{display:grid;grid-template-columns:1fr 1.3fr;gap:40px}
+.jphoto{border-radius:28px;background:url(img/terminal.jpg) center/cover;min-height:460px;position:relative;overflow:hidden}
+.jphoto span{position:absolute;left:24px;bottom:24px;background:rgba(11,26,46,.8);color:#fff;padding:12px 18px;border-radius:30px;font-size:14px;backdrop-filter:blur(6px)}
+.job{display:grid;grid-template-columns:1fr auto auto;gap:24px;align-items:center;padding:24px 0;border-bottom:1px solid var(--line)}
+.job h3{font-weight:400;font-size:22px}
+.job small{color:var(--muted)}
+.job .sal{font-weight:500}
+/* contact */
+.contact{background:var(--navy2);color:#fff;border-radius:32px;padding:64px;display:grid;grid-template-columns:1fr 1.2fr;gap:60px}
+.contact h2{color:#fff}
+.contact p{color:#9fb0c3;margin-top:18px}
+form .g{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.in{display:block;margin-bottom:16px}
+.in span{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9fb0c3;margin-bottom:6px}
+.in input,.in select,.in textarea{width:100%;background:transparent;border:0;border-bottom:1px solid #3a5272;padding:10px 0;color:#fff;outline:0;font-size:18px;transition:border-color .3s}
+.in input:focus,.in textarea:focus{border-color:var(--gold)}
+.in select option{color:#000}
+.ok-msg{display:none;color:var(--gold2);margin-top:14px}
+/* footer */
+footer{background:var(--navy);color:#9fb0c3;padding:70px 0 40px;margin-top:120px;font-size:15px}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px}
+footer h4{color:#fff;font-weight:400;font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px}
+footer li{list-style:none;margin:8px 0}
+footer a:hover{color:var(--gold2)}
+.legal{border-top:1px solid #22385a;margin-top:50px;padding-top:24px;font-size:13px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(6,14,26,.6);backdrop-filter:blur(6px);z-index:50;display:none;place-items:center;padding:20px}
+.modal.on{display:grid}
+.mbox{background:#fff;border-radius:28px;padding:40px;max-width:520px;width:100%;animation:pop .5s var(--ease)}
+@keyframes pop{from{transform:translateY(20px) scale(.97);opacity:0}}
+.mbox h3{font-weight:300;font-style:italic;font-size:34px}
+.mbox p{color:var(--muted);margin:8px 0 22px}
+.mbox .in span{color:var(--muted)}
+.mbox .in input,.mbox .in select{color:var(--ink);border-color:var(--line)}
+.mbox .in select option{color:var(--ink)}
+.x{float:right;background:none;border:0;font-size:26px;cursor:pointer;color:var(--muted)}
+.demo-note{position:fixed;left:16px;bottom:16px;z-index:40;background:var(--navy);color:#c9d3df;font-size:12px;padding:8px 14px;border-radius:20px;opacity:.9}
+/* responsive */
+@media(max-width:1080px){
+  .pane{grid-template-columns:1fr 1fr}.fld{border-right:0;border-bottom:1px solid var(--line)}.swap{display:none}.go{grid-column:1/-1;margin:8px}
+  .routes,.info,.jobs,.contact{grid-template-columns:1fr}.svc{grid-template-columns:1fr 1fr}
+  .nav{display:none}.burger{display:block}header.main .wrap{grid-template-columns:auto 1fr auto}.logo{grid-column:1;align-items:flex-start}
+  footer .cols{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .wrap{padding:0 16px}.util nav a:nth-child(n+2){display:none}.sec,.board{padding:80px 0}
+  .pane,.pane.two{grid-template-columns:1fr}.tabs{overflow-x:auto}.tabs button{white-space:nowrap;padding:9px 14px}
+  .hero{height:auto;min-height:0}.hero .wrap{padding:150px 16px 30px}.util .wrap>div>span{display:none}.util nav{gap:14px}.tabs{scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.pills{flex-wrap:wrap}.pill{font-size:11px;padding:7px 12px}.book{border-radius:26px}.scroll{display:none}
+  .svc{grid-template-columns:1fr}.btabs input{flex:1 1 100%;width:100%;margin:8px 0 0}.clock{font-size:30px}
+  .job{grid-template-columns:1fr;gap:8px}.contact{padding:32px 20px}form .g{grid-template-columns:1fr}
+  .stats{gap:24px}.wing{height:auto;padding:90px 0}.wing .card{top:0;transform:none}.map{min-height:360px}
+  footer .cols{grid-template-columns:1fr}.nw{grid-template-columns:1fr;gap:4px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.r{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="util"><div class="wrap">
+  <nav><a href="#board" data-t="u1">Онлайн-табло</a><a href="#book" data-t="u2" onclick="tab(1)">Регистрация на рейс</a><a href="#info" data-t="u3">Пассажирам</a><a href="#jobs" data-t="u4">Вакансии</a></nav>
+  <div style="display:flex;gap:22px;align-items:center"><span>8 800 000-00-00</span><div class="lang"><button class="on" data-l="ru">RU</button><button data-l="en">EN</button></div></div>
+</div></div>
+
+<header class="main"><div class="wrap">
+  <nav class="nav"><a href="#routes" data-t="n1">Маршруты</a><a href="#services" data-t="n2">Услуги</a><a href="#board" data-t="n3">Табло</a></nav>
+  <a href="#" class="logo"><b>СИВЕРА</b><svg viewBox="0 0 150 14"><path d="M0 2 C40 2 60 12 75 12 C90 12 110 2 150 2" stroke="#f0c587" stroke-width="1.4" fill="none"/></svg></a>
+  <nav class="nav r2"><a href="#info" data-t="n4">Пассажирам</a><a href="#jobs" data-t="n5">Карьера</a><a href="#contact" data-t="n6">Контакты</a></nav>
+  <button class="burger" aria-label="Меню">☰</button>
+</div></header>
+
+<section class="hero" id="book">
+  <div class="bg"></div>
+  <div class="wrap">
+    <h1><span data-t="h0">Авиакомпания · с 2004 года</span><em data-t="h1">Небо, в котором всё понятно заранее</em></h1>
+    <div class="book">
+      <div class="tabs">
+        <button class="on" data-t="t1">Купить билет</button><button data-t="t2">Регистрация</button><button data-t="t3">Статус рейса</button><button data-t="t4">Моё бронирование</button>
+      </div>
+      <div class="pane on">
+        <div class="fld"><label data-t="f1">Откуда</label><input id="from" value="Москва (SVO)" list="cities"><button class="swap" type="button" aria-label="Поменять">⇄</button></div>
+        <div class="fld"><label data-t="f2">Куда</label><input id="to" value="Мурманск (MMK)" list="cities"></div>
+        <div class="fld"><label data-t="f3">Туда</label><input type="date" id="d1"></div>
+        <div class="fld"><label data-t="f4">Обратно</label><input type="date" id="d2"></div>
+        <div class="fld"><label data-t="f5">Пассажиры</label><select><option>1 взрослый</option><option>2 взрослых</option><option>2 взр. + ребёнок</option><option>Группа</option></select></div>
+        <button class="go" data-t="b1" onclick="openM('Поиск рейсов','Демо: здесь подключается выдача рейсов и тарифов из системы бронирования через API.')">Найти рейсы</button>
+      </div>
+      <div class="pane two">
+        <div class="fld"><label data-t="f6">Номер бронирования или билета</label><input placeholder="ABC123"></div>
+        <div class="fld"><label data-t="f7">Фамилия пассажира</label><input placeholder="IVANOV"></div>
+        <button class="go" data-t="b2" onclick="openM('Онлайн-регистрация','Регистрация открывается за 24 часа до вылета. Выбор места и посадочный талон - в один шаг.')">Зарегистрироваться</button>
+      </div>
+      <div class="pane two">
+        <div class="fld"><label data-t="f8">Номер рейса</label><input placeholder="SR 214"></div>
+        <div class="fld"><label data-t="f9">Дата</label><input type="date" class="today"></div>
+        <button class="go" data-t="b3" onclick="location.hash='board'">Показать статус</button>
+      </div>
+      <div class="pane two">
+        <div class="fld"><label data-t="f6">Номер бронирования или билета</label><input placeholder="ABC123"></div>
+        <div class="fld"><label data-t="f7">Фамилия пассажира</label><input placeholder="IVANOV"></div>
+        <button class="go" data-t="b4" onclick="openM('Моё бронирование','Изменение даты, доп. багаж, выбор места, питание и возврат - в личном кабинете пассажира.')">Открыть</button>
+      </div>
+    </div>
+    <div class="pills"><button class="pill on" data-t="p1">Туда и обратно</button><button class="pill" data-t="p2">В одну сторону</button><button class="pill" data-t="p3">Сложный маршрут</button></div>
+  </div>
+  <div class="scroll" data-t="sc">Листайте вниз</div>
+</section>
+<datalist id="cities"><option>Москва (SVO)</option><option>Санкт-Петербург (LED)</option><option>Мурманск (MMK)</option><option>Архангельск (ARH)</option><option>Сыктывкар (SCW)</option><option>Калининград (KGD)</option><option>Сочи (AER)</option><option>Казань (KZN)</option><option>Екатеринбург (SVX)</option></datalist>
+
+<section class="board" id="board"><div class="wrap">
+  <div class="head r"><div><div class="cap" style="color:var(--gold2)" data-t="bc">Онлайн-табло</div><h2 style="margin-top:16px" data-t="bh">Рейсы <b>сегодня</b></h2></div><div class="clock" id="clock">00:00:00</div></div>
+  <div class="btabs r"><button class="on" data-b="dep" data-t="bt1">Вылет</button><button data-b="arr" data-t="bt2">Прилёт</button><input id="bq" placeholder="Номер рейса или город"></div>
+  <div class="tablewrap r"><table><thead><tr><th data-t="c1">Рейс</th><th data-t="c2">Направление</th><th data-t="c3">По расписанию</th><th data-t="c4">Расчётное</th><th data-t="c5">Выход</th><th data-t="c6">Статус</th></tr></thead><tbody id="tb"></tbody></table></div>
+</div></section>
+
+<section class="sec" id="routes"><div class="wrap">
+  <div class="head r"><div><div class="cap" style="color:var(--gold)" data-t="rc">Маршрутная сеть</div><h2 style="margin-top:16px" data-t="rh">Куда <b>летим</b></h2></div><p data-t="rp">Наведите на направление - на карте подсветится маршрут. Цены «от» обновляются из системы продажи билетов.</p></div>
+  <div class="routes">
+    <div class="map r">
+      <svg viewBox="0 0 700 520" id="map"></svg>
+      <div class="legend">● <span data-t="lg">хаб · Москва</span></div>
+    </div>
+    <div class="dest r" id="dest"></div>
+  </div>
+</div></section>
+
+<section class="sec" id="services" style="padding-top:0"><div class="wrap">
+  <div class="head r"><div><div class="cap" style="color:var(--gold)" data-t="sc1">Дополнительные услуги</div><h2 style="margin-top:16px" data-t="sh">Полёт <b>под себя</b></h2></div><p data-t="sp">Каждую услугу можно заказать на сайте до вылета: к существующему бронированию или вместе с билетом.</p></div>
+  <div class="svc" id="svc"></div>
+</div></section>
+
+<section class="wing"><div class="bg" id="wbg"></div><div class="wrap"><div class="card r">
+  <div class="cap" style="color:var(--gold2)" data-t="wc">Флот и надёжность</div>
+  <h2 style="margin-top:16px" data-t="wh">Средний возраст самолётов - <b>6 лет</b></h2>
+  <p data-t="wp">Собственный техцентр, контроль каждого рейса и пунктуальность, которую видно на табло в реальном времени.</p>
+  <div class="stats"><div><b class="cnt" data-to="28">0</b><span data-t="s1">самолётов</span></div><div><b class="cnt" data-to="46">0</b><span data-t="s2">направлений</span></div><div><b><span class="cnt" data-to="94">0</span>%</b><span data-t="s3">рейсов вовремя</span></div></div>
+</div></div></section>
+
+<section class="sec" id="info"><div class="wrap">
+  <div class="info">
+    <div class="r">
+      <div class="cap" style="color:var(--gold)" data-t="ic">Информация и правила</div>
+      <h2 style="margin:16px 0 30px" data-t="ih">Пассажирам</h2>
+      <details open><summary>Нормы багажа и ручной клади</summary><p>Эконом: 1 место до 23 кг и ручная кладь до 10 кг. Бизнес: 2 места до 32 кг. Сверхнормативный багаж оформляется онлайн дешевле, чем в аэропорту.</p></details>
+      <details><summary>Онлайн-регистрация</summary><p>Открывается за 24 часа и закрывается за 1 час до вылета. Посадочный талон приходит на почту и в приложение.</p></details>
+      <details><summary>Перевозка животных</summary><p>В салоне - до 8 кг вместе с переноской. В багажном отсеке - по предварительному согласованию.</p></details>
+      <details><summary>Возврат и обмен билетов</summary><p>Условия зависят от тарифа. Заявку на возврат можно подать в разделе «Моё бронирование».</p></details>
+      <details><summary>Пассажиры с особыми потребностями</summary><p>Сопровождение, кресло-коляска, помощь при посадке - заказывайте не позднее чем за 48 часов.</p></details>
+    </div>
+    <div class="r">
+      <div class="cap" style="color:var(--gold)" data-t="nc">Новости</div>
+      <h2 style="margin:16px 0 30px" data-t="nh">Пресс-центр</h2>
+      <div class="news">
+        <div class="nw"><time>14.11.2026</time><h3>Открываем прямой рейс Санкт-Петербург - Мурманск с декабря</h3></div>
+        <div class="nw"><time>05.11.2026</time><h3>Зимнее расписание: 46 направлений и новые утренние рейсы</h3></div>
+        <div class="nw"><time>28.10.2026</time><h3>Онлайн-регистрация теперь доступна для групп до 9 человек</h3></div>
+        <div class="nw"><time>17.10.2026</time><h3>Бизнес-зал в Шереметьево: доступ можно купить на сайте</h3></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section class="sec" id="jobs" style="padding-top:0"><div class="wrap">
+  <div class="head r"><div><div class="cap" style="color:var(--gold)" data-t="jc">Карьера</div><h2 style="margin-top:16px" data-t="jh">Вакансии <b>открыты</b></h2></div><p data-t="jp">Отклик - в один шаг. Резюме попадает в кабинет отдела кадров, контент-менеджер публикует вакансии сам.</p></div>
+  <div class="jobs">
+    <div class="jphoto r"><span data-t="jb">Команда 1 200 человек в 9 городах</span></div>
+    <div class="r" id="jl"></div>
+  </div>
+</div></section>
+
+<section id="contact"><div class="wrap"><div class="contact r">
+  <div><div class="cap" style="color:var(--gold2)" data-t="cc">Обратная связь</div><h2 style="margin-top:16px" data-t="ch">Мы <b>на связи</b></h2><p data-t="cp">Ответим в течение рабочего дня. Обращение получает номер, статус видно в личном кабинете.</p></div>
+  <form onsubmit="event.preventDefault();this.querySelector('.ok-msg').style.display='block';this.reset()">
+    <div class="g"><label class="in"><span data-t="ff1">Имя</span><input required></label><label class="in"><span data-t="ff2">E-mail или телефон</span><input required></label></div>
+    <label class="in"><span data-t="ff3">Тема</span><select><option>Бронирование и билеты</option><option>Багаж</option><option>Претензия</option><option>Предложение</option></select></label>
+    <label class="in"><span data-t="ff4">Сообщение</span><textarea rows="3" required></textarea></label>
+    <button class="go" data-t="ff5">Отправить</button>
+    <div class="ok-msg" data-t="ff6">Спасибо! Обращение № 24-1187 принято (демо).</div>
+  </form>
+</div></div></section>
+
+<footer><div class="wrap">
+  <div class="cols">
+    <div><div class="logo" style="align-items:flex-start"><b style="color:#fff">СИВЕРА</b></div><p style="margin-top:18px;max-width:320px" data-t="fd">Демо-концепт сайта авиаперевозчика. Название, рейсы и цены вымышленные.</p></div>
+    <div><h4 data-t="fh1">Пассажирам</h4><ul><li><a href="#book">Купить билет</a></li><li><a href="#book">Регистрация</a></li><li><a href="#board">Онлайн-табло</a></li><li><a href="#info">Правила перевозки</a></li></ul></div>
+    <div><h4 data-t="fh2">Компания</h4><ul><li><a href="#">О компании</a></li><li><a href="#info">Новости</a></li><li><a href="#jobs">Вакансии</a></li><li><a href="#contact">Контакты</a></li></ul></div>
+    <div><h4 data-t="fh3">Документы</h4><ul><li><a href="#">Политика конфиденциальности</a></li><li><a href="#">Публичная оферта</a></li><li><a href="#">Раскрытие информации</a></li></ul></div>
+  </div>
+  <div class="legal"><span>© 2026 Сивера · демо</span><span>Фото: Wikimedia Commons (CC0, CC BY-SA)</span></div>
+</div></footer>
+
+<div class="modal" id="m"><div class="mbox"><button class="x" onclick="closeM()">×</button><h3 id="mt"></h3><p id="mp"></p><div id="mf"></div><button class="go" style="width:100%;margin-top:6px" onclick="closeM()">OK</button></div></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+/* tabs */
+const tb=$$('.tabs button'),pn=$$('.pane');
+function tab(i){tb.forEach((b,k)=>b.classList.toggle('on',k===i));pn.forEach((p,k)=>p.classList.toggle('on',k===i))}
+tb.forEach((b,i)=>b.onclick=()=>tab(i));
+$$('.pill').forEach(p=>p.onclick=()=>{$$('.pill').forEach(x=>x.classList.remove('on'));p.classList.add('on')});
+$('.swap').onclick=()=>{const a=$('#from'),b=$('#to');[a.value,b.value]=[b.value,a.value]};
+const d=new Date(),iso=x=>x.toISOString().slice(0,10);$('#d1').value=iso(new Date(+d+3*864e5));$('#d2').value=iso(new Date(+d+10*864e5));$$('.today').forEach(e=>e.value=iso(d));
+/* modal */
+function openM(t,p,form){$('#mt').textContent=t;$('#mp').textContent=p;$('#mf').innerHTML=form||'';$('#m').classList.add('on')}
+function closeM(){$('#m').classList.remove('on')}
+$('#m').onclick=e=>{if(e.target.id==='m')closeM()};addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+/* board */
+const C={dep:[['SR 214','Мурманск','Murmansk'],['SR 118','Санкт-Петербург','St Petersburg'],['SR 402','Сочи','Sochi'],['SR 330','Архангельск','Arkhangelsk'],['SR 515','Калининград','Kaliningrad'],['SR 276','Сыктывкар','Syktyvkar'],['SR 610','Казань','Kazan'],['SR 702','Екатеринбург','Yekaterinburg']],
+arr:[['SR 215','Мурманск','Murmansk'],['SR 119','Санкт-Петербург','St Petersburg'],['SR 403','Сочи','Sochi'],['SR 331','Архангельск','Arkhangelsk'],['SR 516','Калининград','Kaliningrad'],['SR 611','Казань','Kazan']]};
+const ST={ru:{ok:'По расписанию',board:'Идёт посадка',late:'Задерживается',gone:'Вылетел',land:'Прибыл',cnl:'Отменён'},en:{ok:'On time',board:'Boarding',late:'Delayed',gone:'Departed',land:'Landed',cnl:'Cancelled'}};
+let mode='dep',lang='ru',rows={};
+function hm(m){m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')}
+function gen(){const now=new Date(),n=now.getHours()*60+now.getMinutes();
+  for(const k of ['dep','arr'])rows[k]=C[k].map((c,i)=>{const t=n-50+i*35;let s=t<n-15?(k==='dep'?'gone':'land'):t<n+25?(k==='dep'?'board':'ok'):'ok';let est=t;if(i===4){s='late';est=t+40}
+    return{f:c[0],ru:c[1],en:c[2],t,est,g:k==='dep'?String.fromCharCode(65+i%4)+(10+i*3):'-',s}})}
+function flap(str){return '<span class="fl">'+[...str].map(ch=>'<i class="flip">'+(ch===' '?'&nbsp;':ch)+'</i>').join('')+'</span>'}
+function stc(s){return{ok:'ok',land:'ok',board:'go2',gone:'go2',late:'warn',cnl:'bad'}[s]}
+function render(){const q=($('#bq').value||'').toLowerCase();
+  $('#tb').innerHTML=rows[mode].filter(r=>!q||(r.f+r.ru+r.en).toLowerCase().includes(q)).map(r=>'<tr><td>'+flap(r.f)+'</td><td style="font-family:var(--f);font-size:17px">'+(lang==='ru'?r.ru:r.en)+'</td><td>'+hm(r.t)+'</td><td>'+(r.est!==r.t?'<span style="color:#f2bd6b">'+hm(r.est)+'</span>':hm(r.est))+'</td><td>'+r.g+'</td><td><span class="st '+stc(r.s)+'">'+(r.s==='board'?'<i class="dot"></i>':'')+ST[lang][r.s]+'</span></td></tr>').join('')}
+$$('.btabs button').forEach(b=>b.onclick=()=>{$$('.btabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=b.dataset.b;render()});
+$('#bq').oninput=render;gen();render();
+setInterval(()=>{$('#clock').textContent=new Date().toLocaleTimeString('ru-RU')},1000);
+setInterval(()=>{const r=rows.dep[1+Math.floor(Math.random()*5)];if(r.s==='ok')r.s='board';else if(r.s==='board')r.s='gone';render()},12000);
+/* map + destinations */
+const P={MOW:[330,300],LED:[250,200],MMK:[270,70],ARH:[380,130],SCW:[480,190],KGD:[90,250],AER:[300,470],KZN:[470,320],SVX:[600,280]};
+const D=[['LED','Санкт-Петербург','St Petersburg','1 ч 25 мин',3900],['MMK','Мурманск','Murmansk','2 ч 30 мин',6400],['AER','Сочи','Sochi','2 ч 40 мин',5900],['KGD','Калининград','Kaliningrad','2 ч 15 мин',5200],['KZN','Казань','Kazan','1 ч 40 мин',4300],['SVX','Екатеринбург','Yekaterinburg','2 ч 25 мин',5600]];
+const N={MOW:['Москва','Moscow'],LED:['С.-Петербург','St Petersburg'],MMK:['Мурманск','Murmansk'],ARH:['Архангельск','Arkhangelsk'],SCW:['Сыктывкар','Syktyvkar'],KGD:['Калининград','Kaliningrad'],AER:['Сочи','Sochi'],KZN:['Казань','Kazan'],SVX:['Екатеринбург','Yekaterinburg']};
+function arc(a,b){const[x1,y1]=P[a],[x2,y2]=P[b],mx=(x1+x2)/2,my=(y1+y2)/2-Math.hypot(x2-x1,y2-y1)*.25;return`M${x1} ${y1} Q${mx} ${my} ${x2} ${y2}`}
+function drawMap(){let s='<defs><radialGradient id="gl"><stop offset="0" stop-color="#d7a25a" stop-opacity=".5"/><stop offset="1" stop-color="#d7a25a" stop-opacity="0"/></radialGradient></defs>';
+  for(let x=0;x<700;x+=35)for(let y=0;y<520;y+=35)s+=`<circle cx="${x}" cy="${y}" r="1" fill="#22385a"/>`;
+  Object.keys(P).filter(k=>k!=='MOW').forEach(k=>s+=`<path class="arc" id="a${k}" d="${arc('MOW',k)}"/>`);
+  s+='<circle cx="330" cy="300" r="60" fill="url(#gl)"/>';
+  Object.entries(P).forEach(([k,[x,y]])=>s+=`<g class="city ${k==='MOW'?'hub':''}"><circle cx="${x}" cy="${y}" r="${k==='MOW'?7:4}"/><text x="${x+12}" y="${y+4}">${N[k][lang==='ru'?0:1]}</text></g>`);
+  s+='<path class="plane" id="pl" d="M0-6 L3 2 L0 0 L-3 2Z" transform="scale(2.2)"/>';
+  $('#map').innerHTML=s}
+let anim=null;
+function fly(k){$$('.arc').forEach(a=>a.classList.toggle('on',a.id==='a'+k));const p=$('#a'+k),pl=$('#pl');if(!p)return;cancelAnimationFrame(anim);const L=p.getTotalLength(),t0=performance.now();
+  (function f(t){const u=Math.min(1,(t-t0)/1800),e=1-Math.pow(1-u,3),pt=p.getPointAtLength(L*e),pt2=p.getPointAtLength(Math.min(L,L*e+1));const ang=Math.atan2(pt2.y-pt.y,pt2.x-pt.x)*180/Math.PI+90;pl.setAttribute('transform',`translate(${pt.x} ${pt.y}) rotate(${ang}) scale(2.2)`);if(u<1)anim=requestAnimationFrame(f)})(t0)}
+function drawDest(){$('#dest').innerHTML=D.map(x=>`<div class="dcard" data-k="${x[0]}"><div><h3>${lang==='ru'?x[1]:x[2]}</h3><small>${x[3]} · ${lang==='ru'?'ежедневно':'daily'}</small></div><div class="pr">${lang==='ru'?'от':'from'}<b>${x[4].toLocaleString('ru-RU')} ₽</b></div></div>`).join('');
+  $$('.dcard').forEach(c=>{c.onmouseenter=()=>{$$('.dcard').forEach(z=>z.classList.remove('on'));c.classList.add('on');fly(c.dataset.k)};c.onclick=()=>{$('#to').value=c.querySelector('h3').textContent;location.hash='book'}})}
+drawMap();drawDest();setTimeout(()=>{const c=$('.dcard');c&&c.dispatchEvent(new Event('mouseenter'))},600);
+/* services */
+const IC={bag:'<rect x="8" y="12" width="24" height="22" rx="3"/><path d="M15 12V7h10v5M14 34v3M26 34v3"/>',seat:'<path d="M12 6v18h16M12 24l-2 10M28 24v10M16 24V10"/>',food:'<circle cx="20" cy="22" r="11"/><path d="M6 8v10M4 8v6M8 8v6M34 8c-3 2-3 10 0 12v14"/>',lounge:'<path d="M6 26h28v6H6zM9 26v-8a4 4 0 014-4h14a4 4 0 014 4v8"/>',pet:'<circle cx="14" cy="14" r="3"/><circle cx="26" cy="14" r="3"/><circle cx="9" cy="22" r="3"/><circle cx="31" cy="22" r="3"/><path d="M14 32c0-6 12-6 12 0z"/>',ins:'<path d="M20 5l13 5v9c0 8-6 14-13 16C13 33 7 27 7 19v-9z"/><path d="M14 20l4 4 8-8"/>'};
+const SV=[['bag','Дополнительный багаж','Extra baggage','Онлайн на 30% дешевле, чем в аэропорту','от 1 500 ₽'],['seat','Выбор места','Seat selection','У окна, у прохода или с увеличенным пространством','от 500 ₽'],['food','Питание на борту','Onboard meals','Горячее меню, детское и диетическое питание','от 650 ₽'],['lounge','Бизнес-зал','Business lounge','Тишина, кухня и душ перед вылетом','от 3 200 ₽'],['pet','Перевозка животных','Pet travel','В салоне до 8 кг или в багажном отсеке','от 2 500 ₽'],['ins','Страховка','Insurance','Задержка, багаж и медицина в одном полисе','от 390 ₽']];
+function drawSvc(){$('#svc').innerHTML=SV.map(s=>`<div class="sv r in"><svg viewBox="0 0 40 40">${IC[s[0]]}</svg><h3>${lang==='ru'?s[1]:s[2]}</h3><p>${s[3]}</p><div class="row"><b>${s[4]}</b><button class="lnk" data-s="${s[1]}">${lang==='ru'?'Оформить':'Order'}</button></div></div>`).join('');
+  $$('.lnk[data-s]').forEach(b=>b.onclick=()=>openM(b.dataset.s,'Добавьте услугу к бронированию - оплата онлайн.','<label class="in"><span>Номер бронирования</span><input placeholder="ABC123"></label><label class="in"><span>Фамилия</span><input placeholder="IVANOV"></label>'))}
+drawSvc();
+/* jobs */
+const J=[['Бортпроводник','Москва · обучение за счёт компании','от 95 000 ₽'],['Инженер по ТО ВС','Москва · сменный график','от 140 000 ₽'],['Агент по регистрации','Мурманск · аэропорт','от 62 000 ₽'],['Пилот ВС (КВС)','Москва · RRJ-95','по итогам собеседования']];
+$('#jl').innerHTML=J.map(j=>`<div class="job"><div><h3>${j[0]}</h3><small>${j[1]}</small></div><div class="sal">${j[2]}</div><button class="lnk" data-j="${j[0]}">Откликнуться</button></div>`).join('');
+$$('.lnk[data-j]').forEach(b=>b.onclick=()=>openM('Отклик: '+b.dataset.j,'Резюме попадёт в отдел кадров, ответим в течение 3 рабочих дней.','<label class="in"><span>Имя и фамилия</span><input></label><label class="in"><span>Телефон</span><input></label><label class="in"><span>Резюме</span><input type="file"></label>'));
+/* i18n */
+const EN={u1:'Flight board',u2:'Online check-in',u3:'Passengers',u4:'Careers',n1:'Routes',n2:'Services',n3:'Board',n4:'Passengers',n5:'Careers',n6:'Contacts',h0:'Airline · since 2004',h1:'A sky where everything is clear in advance',t1:'Book a flight',t2:'Check-in',t3:'Flight status',t4:'My booking',f1:'From',f2:'To',f3:'Depart',f4:'Return',f5:'Passengers',f6:'Booking or ticket number',f7:'Last name',f8:'Flight number',f9:'Date',b1:'Search',b2:'Check in',b3:'Show status',b4:'Open',p1:'Round trip',p2:'One way',p3:'Multi-city',sc:'Scroll down',bc:'Flight board',bh:'Flights <b>today</b>',bt1:'Departures',bt2:'Arrivals',c1:'Flight',c2:'Destination',c3:'Scheduled',c4:'Estimated',c5:'Gate',c6:'Status',rc:'Route network',rh:'Where we <b>fly</b>',rp:'Hover a destination to see the route. Fares are pulled from the ticketing system.',lg:'hub · Moscow',sc1:'Extra services',sh:'Flight <b>your way</b>',sp:'Add any service online before departure - to an existing booking or with a new ticket.',wc:'Fleet and reliability',wh:'Average fleet age - <b>6 years</b>',wp:'Own maintenance centre and real-time punctuality on the flight board.',s1:'aircraft',s2:'destinations',s3:'on-time flights',ic:'Rules and information',ih:'Passengers',nc:'News',nh:'Press centre',jc:'Careers',jh:'Open <b>positions</b>',jp:'Apply in one step. CVs go straight to HR.',jb:'1,200 people in 9 cities',cc:'Feedback',ch:'Get in <b>touch</b>',cp:'We reply within one business day.',ff1:'Name',ff2:'E-mail or phone',ff3:'Topic',ff4:'Message',ff5:'Send',ff6:'Thank you! Request No. 24-1187 received (demo).',fd:'Demo concept of an airline website. Name, flights and fares are fictional.',fh1:'Passengers',fh2:'Company',fh3:'Documents'};
+const RU={};$$('[data-t]').forEach(e=>RU[e.dataset.t]=e.innerHTML);
+$$('.lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;$$('.lang button').forEach(x=>x.classList.toggle('on',x===b));document.documentElement.lang=lang;
+  $$('[data-t]').forEach(e=>{const v=(lang==='en'?EN:RU)[e.dataset.t];if(v)e.innerHTML=v});render();drawMap();drawDest();drawSvc();$('.dcard')&&$('.dcard').dispatchEvent(new Event('mouseenter'))});
+/* reveal + counters + parallax */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('.cnt').forEach(c=>{if(c.dataset.done)return;c.dataset.done=1;const to=+c.dataset.to,t0=performance.now();(function f(t){const u=Math.min(1,(t-t0)/1500);c.textContent=Math.round(to*(1-Math.pow(1-u,3)));if(u<1)requestAnimationFrame(f)})(t0)});io.unobserve(e.target)}}),{threshold:.15});
+$$('.r').forEach(e=>io.observe(e));
+const wbg=$('#wbg');addEventListener('scroll',()=>{const r=wbg.parentElement.getBoundingClientRect();if(r.bottom>0&&r.top<innerHeight)wbg.style.transform=`translateY(${(r.top/innerHeight)*-60}px)`},{passive:true});
+$('.burger').onclick=()=>openM('Меню','','<div style="display:grid;gap:14px;font-size:22px"><a href="#routes" onclick="closeM()">Маршруты</a><a href="#services" onclick="closeM()">Услуги</a><a href="#board" onclick="closeM()">Онлайн-табло</a><a href="#info" onclick="closeM()">Пассажирам</a><a href="#jobs" onclick="closeM()">Вакансии</a><a href="#contact" onclick="closeM()">Контакты</a></div>');
+</script>
+</body>
+</html>
